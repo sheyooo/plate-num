@@ -10,23 +10,26 @@ router.get('/', function(req, res, next) {
 
 router.get('/api/plates/:plate', function(req, res) {
   if (req.params.plate) {
-    var plate = req.params.plate;
+    var plate = req.params.plate.replace(/\s/g, '');
     request.get('http://www.lsmvaapvs.org/search.php?vpn=' + plate)
       .end(function(err, response) {
         if (response.ok) {
           dom.env({ 
             html: response.text,
             done: function(err, window) {
-              var cells = window.document.querySelectorAll('td');
+              var elem = window.document.querySelector('.form-group');
+              elem.innerHTML = elem.innerHTML.replace('<!--', '').replace('-->', '');              
+              var cells = window.document.querySelectorAll('.form-group p');
               if (cells.length > 13) {
                 var plateData = {
                   plateNumber: cells[1].innerHTML,
-                  color: cells[3].innerHTML,
-                  model: cells[5].innerHTML,
-                  chasis: cells[7].innerHTML,
-                  status: cells[9].innerHTML,
-                  licenseIssueDate: cells[11].innerHTML,
-                  licenseExpiryDate: cells[13].innerHTML
+                  name: cells[3].innerHTML,
+                  color: cells[5].innerHTML,
+                  model: cells[7].innerHTML,
+                  chasis: cells[9].innerHTML,
+                  status: cells[11].innerHTML,
+                  licenseIssueDate: cells[13].innerHTML,
+                  licenseExpiryDate: cells[15].innerHTML
                 }
                 res.json(plateData);
               } else {
